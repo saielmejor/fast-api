@@ -4,6 +4,13 @@ from src.fastapi_tutorial.db import Post, create_db_and_tables, get_async_sessio
 from sqlalchemy.ext.asyncio import AsyncSession 
 
 from contextlib import asynccontextmanager 
+from sqlalchemy import select 
+from src.fastapi_tutorial.images import imageKit 
+from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions 
+import shutil 
+import os 
+import uuid 
+import tempfile 
 
 @asynccontextmanager 
 async def lifespan(app:FastAPI): 
@@ -65,4 +72,36 @@ async def upload_file(
 
 
 ): 
-    pass 
+    post = Post( 
+        caption= caption, 
+        url="dummy url", 
+        file_type="photo", 
+        file_name="dummy name"
+    )
+
+    session.add(post) 
+    await session.commit() ## commit to the session to save it to the database
+    await session.refresh(post) 
+    return post 
+
+@app.get("/feed")
+async def get_feed(session:AsyncSession=Depends(get_async_session)
+
+): 
+    result=await session.execute(select(Post).order_by(Post.created_at.desc()))
+    posts=[ row[0] for row in result.all()] #returns a cursor object and pulling it into individual values 
+
+    posts_data=[] 
+    for post in posts: 
+        posts_data.append(
+            {
+                "id":str(post.id), 
+                "caption":post.caption, 
+                "url": post.url, 
+                "filetype":post.file_type, 
+                "filename":post.file_name, 
+                "created_at":post.created_at.isoformat()
+            }
+        )
+
+    return {"posts":posts_data}   
