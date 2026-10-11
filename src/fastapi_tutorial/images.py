@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv 
 load_dotenv()
 
-imageKit=ImageKit(
+imagekit=ImageKit(
     private_key=os.getenv("IMAGEKIT_PRIVATE_KEY")
 
 )
