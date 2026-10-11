@@ -6,11 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from contextlib import asynccontextmanager 
 from sqlalchemy import select 
 from src.fastapi_tutorial.images import imageKit 
-from imagekitio.models.UploadFileRequestOptions import UploadFileRequestOptions 
 import shutil 
 import os 
 import uuid 
 import tempfile 
+
 
 @asynccontextmanager 
 async def lifespan(app:FastAPI): 
@@ -18,6 +18,7 @@ async def lifespan(app:FastAPI):
     yield 
 
 app=FastAPI(lifespan=lifespan) 
+
 
 # text_posts={
 #     # empty dictionary 
