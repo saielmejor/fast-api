@@ -1,0 +1,49 @@
+import uuid 
+from typing import Optional 
+from fastapi import Depends, Request 
+from fastapi_tutorial.users import BaseUserManager, FastAPIUsers, UUIDIDMixin, models 
+
+from fastapi_tutorial.authentication import (
+    AuthenticationBackend,
+    BearerTransport, 
+    JWTStrategy 
+)
+
+from fastapi_tutorial.db import SQAlchemyUserDatabase 
+
+from fastapi_tutorial.db import User , get_user_db 
+
+
+SECRET=" secret string " 
+
+class UserManager(UUIDIDMixin, BaseUserManager[User,uuid.UUID]): 
+    reset_password_token_secret=SECRET 
+    verification_token_secret=SECRET 
+
+    async def on_after_register(self,user:User, request: Optional[Request]=None): 
+        print(f"user {user.id} has registered ")
+
+    async def on_forgot_password(self,user:User, token:str,  request: Optional[Request]=None): 
+            print(f"user {user.id} jas forgot their password. Reset token:{token} ")
+
+    async def on_after_request_verify(self,user: User, token:str, request: Optional[Request]=None ): 
+        print(f"Verification requested for user {user.id}. Verification:{token}")
+
+async def get_user_manager(user_db:SQAlchemyUserDatabase= Depends(get_user_db)): 
+     yield UserManager(user_db)
+
+bearer_transport=BearerTransport(tokenUrl="auth/jwt/login") 
+
+def get_jwt_strategy(): 
+     return JWTStrategy(secret= SECRET,lifetime_seconds=3608 ) #lifetime is to validate the lifespan of the token access 
+auth_backend=AuthenticationBackend( 
+     names="jwt", 
+     transport=bearer_transport, 
+     get_strategy=get_jwt_strategy, 
+
+
+)
+
+fastapi_users=FastAPIUsers[User, uuid.UUID](get_user_manager,auth_backend=[auth_backend])
+
+current_active_user=fastapi_users.current_user(active=True) 
