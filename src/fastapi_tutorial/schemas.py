@@ -1,5 +1,5 @@
 from pydantic import BaseModel  
-from fastapi_tutorial.users import schemas 
+from fastapi_users import schemas 
 import uuid
 
 class PostCreate(BaseModel): 
@@ -12,7 +12,7 @@ class PostResponse(BaseModel): # This is used for validation only
 class UserRead(schemas.BaseUser[uuid.UUID]): 
     pass
 
-class UserCreate(schemas.BaseUSerCreate):
+class UserCreate(schemas.BaseUserCreate):
     pass 
 
 class UserUpdate(schemas.BaseUserUpdate): 

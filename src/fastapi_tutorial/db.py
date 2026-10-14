@@ -6,9 +6,9 @@ from sqlalchemy import Column, String, Text,DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine , async_sessionmaker 
 from sqlalchemy.orm import  DeclarativeBase , relationship 
-from fastapi_tutorial.db import SQLAlchemyUserDatabase, SQALchemyBaserUserTableUUID 
 from fastapi import Depends
 
+from fastapi_users.db import SQLAlchemyBaseUserTableUUID, SQLAlchemyUserDatabase
 
 DATABASE_URL="sqlite+aiosqlite:///./test.db" 
 
@@ -16,12 +16,13 @@ class Base(DeclarativeBase):
     pass
 
 
-class User(SQALchemyBaserUserTableUUID, Base) : 
+class User(SQLAlchemyBaseUserTableUUID, Base) : 
+    __allow_unmapped__ = True
     post= relationship( argument="Post", back_populates="user") 
     # Reference the id of the user 
 class Post (Base): 
     __tablename__= "posts" 
-    id= Column (UUID(as_uuid=True),primary_key=True, default=uuid.uuid4)
+    id= Column(UUID(as_uuid=True),primary_key=True, default=uuid.uuid4)
     user_id=Column(UUID(as_uuid=True), ForeignKey("user.id"), nullable=False )  # create an id column 
     caption=Column(Text) 
     url=Column(String, nullable=False) 

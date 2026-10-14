@@ -1,16 +1,16 @@
 from fastapi import FastAPI ,HTTPException, status, Depends, Response ,File, UploadFile,Form, Depends 
-from src.fastapi_tutorial.schemas import PostCreate , PostResponse , UserRead, UserCreate, UserUpdate 
-from src.fastapi_tutorial.db import Post, create_db_and_tables, get_async_session
+from fastapi_tutorial.schemas import PostCreate , PostResponse , UserRead, UserCreate, UserUpdate 
+from fastapi_tutorial.db import Post, create_db_and_tables, get_async_session
 from sqlalchemy.ext.asyncio import AsyncSession 
 from contextlib import asynccontextmanager 
 from sqlalchemy import select 
-from src.fastapi_tutorial.images import imagekit 
+from fastapi_tutorial.images import imagekit 
 import shutil 
 import os 
 import uuid 
 import tempfile 
 from fastapi_tutorial.users import auth_backend, current_active_user ,fastapi_users
-from src.fastapi_tutorial.images import imagekit
+from fastapi_tutorial.images import imagekit
 
 
 
@@ -28,6 +28,11 @@ app.include_router(fastapi_users.get_auth_router(auth_backend),prefix='/auth/jwt
 #registration route
 app.include_router(fastapi_users.get_register_router(UserRead, UserCreate),prefix='/auth/jwt',tags=["auth"])
 
+app.include_router(fastapi_users.get_reset_password_router(), prefix="/auth" ,tags=["auth"]) 
+
+app.include_router(fastapi_users.get_verify_router(UserRead), prefix="/auth" ,tags=["auth"])
+
+app.include_router(fastapi_users.get_users_router(UserRead,UserUpdate), prefix="/users" ,tags=["users"])
 
 @app.post("/upload")
 async def upload_file(
